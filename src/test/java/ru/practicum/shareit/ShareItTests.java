@@ -92,7 +92,7 @@ class ShareItTests {
 		userController.saveUser(UserMapper.toUserDto(user));
 		userController.saveUser(UserMapper.toUserDto(other));
 		System.out.println(userController.getAllUsers());
-		itemController.saveItem( 1L, ItemMapper.toItemDto(itemUser1));
+		itemController.saveItem(1L, ItemMapper.toItemDto(itemUser1));
 		itemController.saveItem(1L, ItemMapper.toItemDto(itemUser2));
 		itemController.saveItem(2L, ItemMapper.toItemDto(itemOther1));
 		itemController.saveItem(2L, ItemMapper.toItemDto(itemOther2));
@@ -137,7 +137,7 @@ class ShareItTests {
 		userController.saveUser(UserMapper.toUserDto(user));
 		userController.saveUser(UserMapper.toUserDto(other));
 		System.out.println(userController.getAllUsers());
-		itemController.saveItem( 1L, ItemMapper.toItemDto(itemUser1));
+		itemController.saveItem(1L, ItemMapper.toItemDto(itemUser1));
 		itemController.saveItem(1L, ItemMapper.toItemDto(itemUser2));
 		itemController.saveItem(2L, ItemMapper.toItemDto(itemOther1));
 		itemController.saveItem(2L, ItemMapper.toItemDto(itemOther2));
@@ -158,7 +158,7 @@ class ShareItTests {
 		userController.saveUser(UserMapper.toUserDto(user));
 		userController.saveUser(UserMapper.toUserDto(other));
 		System.out.println(userController.getAllUsers());
-		itemController.saveItem( 1L, ItemMapper.toItemDto(itemUser1));
+		itemController.saveItem(1L, ItemMapper.toItemDto(itemUser1));
 		itemController.saveItem(1L, ItemMapper.toItemDto(itemUser2));
 		System.out.println(itemController.getOwnerItems(1L));
 		itemController.saveItem(2L, ItemMapper.toItemDto(itemOther1));
@@ -181,7 +181,7 @@ class ShareItTests {
 		userController.saveUser(UserMapper.toUserDto(user));
 		userController.saveUser(UserMapper.toUserDto(other));
 		System.out.println(userController.getAllUsers());
-		itemController.saveItem( 1L, ItemMapper.toItemDto(itemUser1));
+		itemController.saveItem(1L, ItemMapper.toItemDto(itemUser1));
 		itemController.saveItem(1L, ItemMapper.toItemDto(itemUser2));
 		System.out.println(itemController.getOwnerItems(1L));
 		itemController.saveItem(2L, ItemMapper.toItemDto(itemOther1));
