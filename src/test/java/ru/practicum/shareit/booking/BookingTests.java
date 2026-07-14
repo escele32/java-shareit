@@ -117,7 +117,7 @@ public class BookingTests {
                 .build();
         BookingDto saveBookingDto = bookingController.create(saveUser.getId(), bookingCreateDto);
         assertNotNull(saveBookingDto.getId());
-        assertEquals( saveBookingDto.getId(),
+        assertEquals(saveBookingDto.getId(),
                 bookingController.getById(saveUser.getId(), saveBookingDto.getId()).getId());
         System.out.println(bookingController.getById(saveUser.getId(), saveBookingDto.getId()));
     }
