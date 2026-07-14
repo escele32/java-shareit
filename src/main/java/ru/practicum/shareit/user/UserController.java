@@ -7,15 +7,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.util.ApiPath;
 
 import java.util.List;
 import java.util.Optional;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
-@RequestMapping(path = "/users")
+@RequestMapping(ApiPath.USERS)
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
@@ -38,19 +36,19 @@ public class UserController {
         return userService.saveUser(userDto);
     }
 
-    @PatchMapping("/{userId}")
+    @PatchMapping(ApiPath.USERID)
     public UserDto updateUser(@PathVariable Long userId, @RequestBody UserDto userDto) {
         log.info("Запрос на обновление пользователя");
         return userService.updateUser(userId, userDto);
     }
 
-    @DeleteMapping("/{userId}")
+    @DeleteMapping(ApiPath.USERID)
     public void deleteUser(@PathVariable Long userId) {
         log.info("Запрос на удаление пользователя по id");
         userService.deleteUser(userId);
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping(ApiPath.USERID)
     public Optional<UserDto> getUserById(@PathVariable Long userId) {
         log.info("Запрос на получение пользователя по id");
         return userService.getUserId(userId);

@@ -1,5 +1,7 @@
 package ru.practicum.shareit.item;
 
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exception.ValidationException;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -7,11 +9,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,11 +28,18 @@ import static java.lang.String.format;
 public class ItemServiceImpl implements ItemService {
     ItemRepository itemRepository;
     UserRepository userRepository;
+    CommentRepository commentRepository;
+    BookingRepository bookingRepository;
 
     @Autowired
-    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository) {
+    public ItemServiceImpl(ItemRepository itemRepository,
+                           UserRepository userRepository,
+                           CommentRepository commentRepository,
+                           BookingRepository bookingRepository) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
+        this.commentRepository = commentRepository;
+        this.bookingRepository = bookingRepository;
     }
 
     private Item validationItemId(Long itemId) {
@@ -35,7 +47,7 @@ public class ItemServiceImpl implements ItemService {
             log.info("Id вещи не может быть null");
             throw new ValidationException("Id вещи не может быть null");
         }
-        return itemRepository.findItemById(itemId).orElseThrow(() -> {
+        return itemRepository.findById(itemId).orElseThrow(() -> {
             log.info("Вещ с id {} не найдена", itemId);
             throw new NotFoundException(format("Вещ с id %d не найдена\n", itemId));
         });
@@ -46,7 +58,7 @@ public class ItemServiceImpl implements ItemService {
             log.warn("Id пользователя не может быть null");
             throw new ValidationException("Id пользователя не может быть null");
         }
-        return userRepository.findUserById(userId).orElseThrow(() -> {
+        return userRepository.findById(userId).orElseThrow(() -> {
             log.warn("Пользователь с id {} не найден", userId);
             throw new NotFoundException(format("Пользователь с id %d не найден\n", userId));
         });
@@ -56,7 +68,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> getOwnerItems(Long userId) {
         log.info("Получение списка вещей владельца");
         User user = validationUserId(userId);
-        return itemRepository.findItems()
+        return itemRepository.findByOwnerId(userId)
                 .stream()
                 .filter(item -> item.getOwner() != null)
                 .filter(item -> item.getOwner().getId().equals(user.getId()))
@@ -81,17 +93,22 @@ public class ItemServiceImpl implements ItemService {
             log.warn("Пользователь {} пытается удалить чужую вещь {}", userId, itemId);
             throw new ValidationException("Нельзя удалять чужую вещь");
         }
-        itemRepository.delete(item.getId());
+        itemRepository.deleteById(item.getId());
     }
 
     @Override
-    public Optional<ItemDto> getItemId(Long itemId) {
+    public Optional<ItemDto> getItemId(Long userId,Long itemId) {
         log.info("Получение вещи с id {}", itemId);
         Item item = validationItemId(itemId);
-        return itemRepository.findItemById(item.getId())
+        ItemDto itemDto = itemRepository.findById(item.getId())
                 .stream()
                 .map(ItemMapper::toItemDto)
-                .findFirst();
+                .findFirst().get();
+        itemDto.setComments(commentRepository.findByItemId(itemId)
+                .stream()
+                .map(ItemMapper::toCommentDto)
+                .toList());
+        return Optional.of(itemDto);
     }
 
     @Override
@@ -114,7 +131,7 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getAvailable() != null) {
             item.setAvailable(itemDto.getAvailable());
         }
-        Item saveItem = itemRepository.update(item);
+        Item saveItem = itemRepository.save(item);
         return ItemMapper.toItemDto(saveItem);
     }
 
@@ -129,5 +146,27 @@ public class ItemServiceImpl implements ItemService {
                 .stream()
                 .map(ItemMapper::toItemDto)
                 .toList();
+    }
+
+    @Override
+    public CommentDto addComment(Long userId, Long itemId, CommentDto commentDto) {
+        log.info("Добавление комментария к вещи с id {} от пользователя c id = {} с текстом {}",
+                itemId, userId, commentDto);
+        User user = validationUserId(userId);
+        Item item = validationItemId(itemId);
+        boolean isHasPastBooking = bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(
+                item.getId(),
+                user.getId(),
+                BookingStatus.APPROVED,
+                LocalDateTime.now());
+        if (!isHasPastBooking) {
+            log.warn("Пользователь с id {} не брал вещь с id {} в аренду\n",
+                    user.getId(), item.getId());
+            throw new ValidationException(format("Пользователь с id %d не брал вещь с id %d в аренду\n",
+                    user.getId(), item.getId()));
+        }
+        Comment comment = ItemMapper.toComment(commentDto, item, user);
+        Comment savedComment = commentRepository.save(comment);
+        return ItemMapper.toCommentDto(savedComment);
     }
 }
