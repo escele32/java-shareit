@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.UserController;
@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ItemRequestTests {
     UserRepository userRepository;
@@ -26,19 +27,18 @@ public class ItemRequestTests {
     ItemRepository itemRepository;
     ItemRequestRepository itemRequestRepository;
     ItemRequestController itemRequestController;
-    JdbcTemplate jdbcTemplate;
 
     @Autowired
     public ItemRequestTests(UserRepository userRepository,
-                            UserController userController, ItemRepository itemRepository,
+                            UserController userController,
+                            ItemRepository itemRepository,
                             ItemRequestRepository itemRequestRepository,
-                            ItemRequestController itemRequestController, JdbcTemplate jdbcTemplate) {
+                            ItemRequestController itemRequestController) {
         this.userRepository = userRepository;
         this.userController = userController;
         this.itemRepository = itemRepository;
         this.itemRequestRepository = itemRequestRepository;
         this.itemRequestController = itemRequestController;
-        this.jdbcTemplate = jdbcTemplate;
     }
 
     @BeforeEach
@@ -46,9 +46,6 @@ public class ItemRequestTests {
         itemRepository.deleteAll();
         itemRequestRepository.deleteAll();
         userRepository.deleteAll();
-        jdbcTemplate.execute("ALTER SEQUENCE items_id_seq RESTART WITH 1");
-        jdbcTemplate.execute("ALTER SEQUENCE requests_id_seq RESTART WITH 1");
-        jdbcTemplate.execute("ALTER SEQUENCE users_id_seq RESTART WITH 1");
     }
 
     @Test
@@ -83,7 +80,8 @@ public class ItemRequestTests {
         ItemRequestDto saveRequestDto = itemRequestController.create(saveUserDto.getId(), itemRequestDto);
         assertNotNull(saveRequestDto.getId());
         assertEquals("Нужна матыга!", saveRequestDto.getDescription());
-        assertEquals(1L, saveRequestDto.getId());
+        assertEquals(saveRequestDto.getId(),
+                itemRequestController.getById(saveUserDto.getId(), saveRequestDto.getId()).getId());
         System.out.println(itemRequestController.getOwnerRequests(saveUserDto.getId()));
     }
 

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.BookingState;
@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class BookingTests {
     BookingRepository bookingRepository;
@@ -34,7 +35,6 @@ public class BookingTests {
     ItemRequestRepository itemRequestRepository;
     UserRepository userRepository;
     UserController userController;
-    JdbcTemplate jdbcTemplate;
 
     @Autowired
     public BookingTests(BookingRepository bookingRepository,
@@ -43,8 +43,7 @@ public class BookingTests {
                         ItemController itemController,
                         ItemRequestRepository itemRequestRepository,
                         UserRepository userRepository,
-                        UserController userController,
-                        JdbcTemplate jdbcTemplate) {
+                        UserController userController) {
         this.bookingRepository = bookingRepository;
         this.bookingController = bookingController;
         this.itemRepository = itemRepository;
@@ -52,7 +51,6 @@ public class BookingTests {
         this.itemRequestRepository = itemRequestRepository;
         this.userRepository = userRepository;
         this.userController = userController;
-        this.jdbcTemplate = jdbcTemplate;
     }
 
     @BeforeEach
@@ -61,10 +59,6 @@ public class BookingTests {
         bookingRepository.deleteAll();
         itemRepository.deleteAll();
         userRepository.deleteAll();
-        jdbcTemplate.execute("ALTER SEQUENCE requests_id_seq RESTART WITH 1");
-        jdbcTemplate.execute("ALTER SEQUENCE bookings_id_seq RESTART WITH 1");
-        jdbcTemplate.execute("ALTER SEQUENCE items_id_seq RESTART WITH 1");
-        jdbcTemplate.execute("ALTER SEQUENCE users_id_seq RESTART WITH 1");
     }
 
     @Test
@@ -123,7 +117,8 @@ public class BookingTests {
                 .build();
         BookingDto saveBookingDto = bookingController.create(saveUser.getId(), bookingCreateDto);
         assertNotNull(saveBookingDto.getId());
-        assertEquals(1L, saveBookingDto.getId());
+        assertEquals( saveBookingDto.getId(),
+                bookingController.getById(saveUser.getId(), saveBookingDto.getId()).getId());
         System.out.println(bookingController.getById(saveUser.getId(), saveBookingDto.getId()));
     }
 

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.UserController;
@@ -18,32 +18,29 @@ import java.util.Collection;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ItemTests {
     ItemRepository itemRepository;
     ItemController itemController;
     UserRepository userRepository;
     UserController userController;
-    JdbcTemplate jdbcTemplate;
 
     @Autowired
     public ItemTests(ItemRepository itemRepository,
                      ItemController itemController,
                      UserRepository userRepository,
-                     UserController userController, JdbcTemplate jdbcTemplate) {
+                     UserController userController) {
         this.itemRepository = itemRepository;
         this.itemController = itemController;
         this.userRepository = userRepository;
         this.userController = userController;
-        this.jdbcTemplate = jdbcTemplate;
     }
 
     @BeforeEach
     void setup() {
         itemRepository.deleteAll();
         userRepository.deleteAll();
-        jdbcTemplate.execute("ALTER SEQUENCE items_id_seq RESTART WITH 1");
-        jdbcTemplate.execute("ALTER SEQUENCE users_id_seq RESTART WITH 1");
     }
 
     @Test

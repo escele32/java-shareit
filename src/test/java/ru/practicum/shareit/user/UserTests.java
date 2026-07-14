@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -14,23 +14,21 @@ import ru.practicum.shareit.user.dto.UserDto;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserTests {
     UserRepository userRepository;
     UserController userController;
-    JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public UserTests(UserRepository userRepository, UserController userController, JdbcTemplate jdbcTemplate) {
+    public UserTests(UserRepository userRepository, UserController userController) {
         this.userRepository = userRepository;
         this.userController = userController;
-        this.jdbcTemplate = jdbcTemplate;
     }
 
     @BeforeEach
     void setup() {
         userRepository.deleteAll();
-        jdbcTemplate.execute("ALTER SEQUENCE users_id_seq RESTART WITH 1");
     }
 
     @Test
@@ -111,7 +109,7 @@ public class UserTests {
         assertNotNull(saveUserDto1.getId());
         assertNotNull(saveUserDto2.getId());
         System.out.println(userController.getAllUsers());
-        System.out.println(userController.getUserById(2L));
+        System.out.println(userController.getUserById(saveUserDto2.getId()));
     }
 
 }
