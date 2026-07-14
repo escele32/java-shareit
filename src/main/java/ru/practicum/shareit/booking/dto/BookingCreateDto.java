@@ -14,13 +14,13 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingCreateDto {
     @NotNull
-    private Long itemId;
+    Long itemId;
 
     @NotNull
     @Future
-    private LocalDateTime start;
+    LocalDateTime start;
 
     @NotNull
     @Future
-    private LocalDateTime end;
+    LocalDateTime end;
 }
