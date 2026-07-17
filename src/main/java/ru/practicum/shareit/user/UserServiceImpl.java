@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
             log.warn("Id пользователя не может быть null");
             throw new ValidationException("Id пользователя не может быть null");
         }
-        return userRepository.findUserById(userId).orElseThrow(() -> {
+        return userRepository.findById(userId).orElseThrow(() -> {
             log.warn("Пользователь с id {} не найден", userId);
             throw new NotFoundException(format("Пользователь с id %d не найден\n", userId));
         });
@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getAllUsers() {
         log.info("Получение списка пользователей");
-        return userRepository.findUsers()
+        return userRepository.findAll()
                 .stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
@@ -63,14 +63,14 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long userId) {
         log.info("Удаление пользователя с id {}", userId);
         User user = validationUserId(userId);
-        userRepository.delete(user.getId());
+        userRepository.deleteById(user.getId());
     }
 
     @Override
     public Optional<UserDto> getUserId(Long userId) {
         log.info("Получение пользователя с id {}", userId);
         User user = validationUserId(userId);
-        return userRepository.findUserById(user.getId())
+        return userRepository.findById(user.getId())
                 .stream()
                 .map(UserMapper::toUserDto)
                 .findFirst();
@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
     public UserDto saveUser(UserDto userDto) {
         log.info("Создание пользователя {}", userDto);
         validateEmail(userDto.getEmail());
-        if (userRepository.existsEmail(userDto.getEmail())) {
+        if (userRepository.existsByEmail(userDto.getEmail())) {
             log.warn("Email {} уже используется", userDto.getEmail());
             throw new IllegalArgumentException(format("Email %s уже используется", userDto.getEmail()));
         }
@@ -93,18 +93,18 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(Long userId, UserDto userDto) {
         log.info("Обновление пользователя {} с id {}", userDto, userId);
         User user = validationUserId(userId);
-        if (userDto.getName() != null) {
+        if (userDto.getName() != null && !userDto.getName().isBlank()) {
             user.setName(userDto.getName());
         }
         if (userDto.getEmail() != null) {
             validateEmail(userDto.getEmail());
-            if (userRepository.existsEmail(userDto.getEmail())) {
+            if (userRepository.existsByEmailAndIdNot(userDto.getEmail(), user.getId())) {
                 log.warn("Email {} уже используется", userDto.getEmail());
                 throw new IllegalArgumentException(format("Email %s уже используется", userDto.getEmail()));
             }
             user.setEmail(userDto.getEmail());
         }
-        User saveUser = userRepository.update(user);
+        User saveUser = userRepository.save(user);
         return UserMapper.toUserDto(saveUser);
     }
 }
