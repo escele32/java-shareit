@@ -14,6 +14,8 @@ import ru.practicum.shareit.util.ApiPath;
 
 import java.util.Map;
 
+import static java.lang.String.format;
+
 @Service
 public class ItemClient extends BaseClient {
 
@@ -32,11 +34,11 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> update(Long userId, Long itemId, ItemDto itemDto) {
-        return patch("/" + itemId, userId, itemDto);
+        return patch(format("/%d", itemId), userId, itemDto);
     }
 
     public ResponseEntity<Object> getById(Long userId, Long itemId) {
-        return get("/" + itemId, userId);
+        return get(format("/%d", itemId), userId);
     }
 
     public ResponseEntity<Object> getOwnerItems(Long userId) {
@@ -49,10 +51,10 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> addComment(Long userId, Long itemId, CommentDto commentDto) {
-        return post("/" + itemId + "/comment", userId, commentDto);
+        return post(format("/%d/comment", itemId), userId, commentDto);
     }
 
     public ResponseEntity<Object> delete(Long userId, Long itemId) {
-        return delete("/" + itemId, userId);
+        return delete(format("/%d", itemId), userId);
     }
 }

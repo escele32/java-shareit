@@ -16,6 +16,8 @@ import ru.practicum.shareit.booking.dto.BookItemRequestDto;
 import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.util.ApiPath;
 
+import static java.lang.String.format;
+
 
 @Controller
 @RequestMapping(ApiPath.BOOKINGS)
@@ -34,7 +36,7 @@ public class BookingController {
                                               @Positive @RequestParam(name = "size",
                                                       defaultValue = "10") Integer size) {
         BookingState state = BookingState.from(stateParam)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
+                .orElseThrow(() -> new IllegalArgumentException(format("Unknown state: %s", stateParam)));
         log.info("Get booking with state {}, userId {}, from {}, size {}", stateParam, userId, from, size);
         return bookingClient.getBookings(userId, state, from, size);
     }
@@ -68,7 +70,7 @@ public class BookingController {
             @RequestParam(name = "state", defaultValue = "all") String stateParam) {
         log.info("Запрос на получение инф-ии о бронированиях у пользователя id {} со статусом {}", userId, stateParam);
         BookingState state = BookingState.from(stateParam)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
+                .orElseThrow(() -> new IllegalArgumentException(format("Unknown state: %s", stateParam)));
         return bookingClient.getOwnerBookings(userId, state);
     }
 }

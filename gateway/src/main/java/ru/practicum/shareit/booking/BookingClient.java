@@ -15,6 +15,8 @@ import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.client.BaseClient;
 import ru.practicum.shareit.util.ApiPath;
 
+import static java.lang.String.format;
+
 @Service
 public class BookingClient extends BaseClient {
 
@@ -43,11 +45,11 @@ public class BookingClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getBooking(long userId, Long bookingId) {
-        return get("/" + bookingId, userId);
+        return get(format("/%d", bookingId), userId);
     }
 
     public ResponseEntity<Object> approve(Long userId, Long bookingId, Boolean approved) {
-        return patch("/" + bookingId + "?approved=" + approved, userId, null);
+        return patch(format("/%d?approved=%b", bookingId, approved), userId, null);
     }
 
     public ResponseEntity<Object> getOwnerBookings(Long userId, BookingState state) {

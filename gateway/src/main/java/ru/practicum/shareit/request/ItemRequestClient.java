@@ -13,6 +13,8 @@ import ru.practicum.shareit.util.ApiPath;
 
 import java.util.Map;
 
+import static java.lang.String.format;
+
 @Service
 public class ItemRequestClient extends BaseClient {
 
@@ -43,7 +45,7 @@ public class ItemRequestClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getById(Long userId, Long requestId) {
-        return get("/" + requestId, userId);
+        return get(format("/%d", requestId), userId);
     }
 
 }

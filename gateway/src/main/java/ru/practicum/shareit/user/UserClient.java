@@ -11,6 +11,8 @@ import ru.practicum.shareit.client.BaseClient;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.util.ApiPath;
 
+import static java.lang.String.format;
+
 @Service
 public class UserClient extends BaseClient {
 
@@ -29,11 +31,11 @@ public class UserClient extends BaseClient {
     }
 
     public ResponseEntity<Object> update(Long userId, UserDto userDto) {
-        return patch("/" + userId, userDto);
+        return patch(format("/%d", userId), userDto);
     }
 
     public ResponseEntity<Object> getById(Long userId) {
-        return get("/" + userId);
+        return get(format("/%d", userId));
     }
 
     public ResponseEntity<Object> getAll() {
@@ -41,6 +43,6 @@ public class UserClient extends BaseClient {
     }
 
     public ResponseEntity<Object> delete(Long userId) {
-        return delete("/" + userId);
+        return delete(format("/%d", userId));
     }
 }
